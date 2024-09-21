@@ -90,7 +90,7 @@ func main() {
 		for i := range deltaWindow {
 			deltaWindow[i] = currWindow[i] - nextWindow[i]
 		}
-		for c := mt63.Carrier(0); c < 2; c++ {
+		for c := mt63.Carrier(0); c < 64; c++ {
 			currAmpl := math.Sqrt(dec.PowerAt(c, currWindow))
 			nextAmpl := math.Sqrt(dec.PowerAt(c, nextWindow))
 			deltaAmpl := math.Sqrt(dec.PowerAt(c, deltaWindow))
