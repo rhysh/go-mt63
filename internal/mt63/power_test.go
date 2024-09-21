@@ -77,7 +77,7 @@ func TestPowerAt(t *testing.T) {
 	testLarge := func(wave []float64) func(t *testing.T) {
 		return func(t *testing.T) {
 			have := dec.PowerAt(0, wave)
-			want := float64(64 * 64 / 2)
+			want := 0.5
 			if have < 0.9*want || have > 1.1*want {
 				t.Errorf("want large magnitude; %f != %f", have, want)
 			}
@@ -87,7 +87,7 @@ func TestPowerAt(t *testing.T) {
 	testSmall := func(wave []float64) func(t *testing.T) {
 		return func(t *testing.T) {
 			have := dec.PowerAt(0, wave)
-			high := float64(64 * 64 / 2)
+			high := 0.5
 			if have > 0.01*high {
 				t.Errorf("want small magnitude; %f != %f", have, 0.0)
 			}

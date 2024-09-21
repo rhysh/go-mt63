@@ -64,15 +64,18 @@ func (d *Decoder) PowerAt(c Carrier, vals []float64) float64 {
 	var sinSum, cosSum float64
 
 	carrierCycle := 64 / float64(d.Mode.Bandwidth)
+	windowLen := int(carrierCycle * d.SampleRate)
 
 	for i, val := range vals {
-		t := float64(i) / d.SampleRate
-		if t >= carrierCycle { // integer cycle count for all carriers
+		if i >= windowLen { // integer cycle count for all carriers
 			break
 		}
+		t := float64(i) / d.SampleRate
 		sin, cos := math.Sincos(t * radPerSecond)
 		sinSum += sin * val
 		cosSum += cos * val
 	}
+	sinSum /= float64(windowLen)
+	cosSum /= float64(windowLen)
 	return sinSum*sinSum + cosSum*cosSum
 }
