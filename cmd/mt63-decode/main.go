@@ -45,6 +45,32 @@ func (f *modeFlag) Set(v string) error {
 	return nil
 }
 
+func parseSamples(wavPath string) ([]float64, error) {
+	var f *os.File
+	if len(wavPath) == 0 {
+		f = os.Stdin
+	} else {
+		wf, err := os.Open(wavPath)
+		defer wf.Close()
+		if err != nil {
+			return nil, err
+		}
+		f = wf
+	}
+
+	sc := bufio.NewScanner(f)
+	var samples []float64
+	for sc.Scan() {
+		v, err := strconv.ParseFloat(sc.Text(), 64)
+		if err != nil {
+			return nil, fmt.Errorf("Could not parse floating point input %q: %v\n", sc.Text(), err)
+		}
+		samples = append(samples, v)
+	}
+
+	return samples, nil
+}
+
 func main() {
 	source := flag.String("wav", "", "Path to WAV file to decode (or blank to read samples from stdin)")
 	rate := flag.Int("rate", 44100, "Sample rate (when reading samples from stdin)")
@@ -52,19 +78,12 @@ func main() {
 	flag.Var((*modeFlag)(mode), "mode", "MT63 variant, such as '2kL' or '500S'")
 	flag.Parse()
 
-	_ = source
-
 	dec := &mt63.Decoder{Mode: mode, SampleRate: float64(*rate)}
 
-	var samples []float64
-	sc := bufio.NewScanner(os.Stdin)
-	for sc.Scan() {
-		v, err := strconv.ParseFloat(sc.Text(), 64)
-		if err != nil {
-			fmt.Printf("Could not parse floating point input %q: %v\n", sc.Text(), err)
-			os.Exit(1)
-		}
-		samples = append(samples, v)
+	samples, err := parseSamples(*source)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
 	}
 
 	symbolHz := int(dec.Mode.Bandwidth) / 100
